@@ -215,10 +215,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderLineups(battingOrder, gamePk, teamType) {
         const lineupDiv = document.getElementById(`${teamType}-lineup-${gamePk}`);
         lineupDiv.innerHTML = '';
-
+    
         const lineupCard = document.createElement('div');
         lineupCard.classList.add('lineup-card');
-
+    
         const lineupHeader = document.createElement('div');
         lineupHeader.classList.add('lineup-header');
         lineupHeader.innerHTML = `
@@ -231,13 +231,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-
+    
         const playerRows = document.createElement('div');
         playerRows.classList.add('player-rows');
-
+    
         if (battingOrder.length === 0) {
             playerRows.innerHTML = '<div class="row"><div class="player-info"><span class="tbd-lineup">Lineup has not been confirmed yet</span></div></div>';
         } else {
+            lineupCard.appendChild(lineupHeader); // Add the first header only if there is a lineup
             battingOrder.forEach((player, index) => {
                 const playerRow = document.createElement('div');
                 playerRow.classList.add('row');
@@ -255,20 +256,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 playerRows.appendChild(playerRow);
             });
+    
+            const secondLineupHeader = document.createElement('div');
+            secondLineupHeader.classList.add('lineup-header');
+            secondLineupHeader.innerHTML = `
+                <div class="row">
+                    <div></div>
+                    <div class="stats-header">
+                        <span>IP</span>
+                        <span>ERA</span>
+                        <span>WHIP</span>
+                        <span>FIP</span>
+                    </div>
+                </div>
+            `;
+    
+            lineupCard.appendChild(secondLineupHeader); // Add the second header only if there is a lineup
         }
-
-        lineupCard.appendChild(lineupHeader);
+    
         lineupCard.appendChild(playerRows);
         lineupDiv.appendChild(lineupCard);
-
-        // Update the lineup status based on the presence of the lineup
-        const lineupStatusDiv = document.getElementById(`lineup-status-${gamePk}`);
-        if (battingOrder.length === 0) {
-            lineupStatusDiv.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
-        } else {
-            lineupStatusDiv.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
-        }
     }
+    
+    
 
     function getLogoUrl(teamId, teamName, isActive = false) {
         const logoType = isActive ? 'team-cap-on-dark' : 'team-cap-on-light';
@@ -415,6 +425,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="player-rows">
                             <!-- Players will be added here -->
                         </div>
+                        <div class="lineup-header">
+                            <div class="row">
+                                <div></div>
+                                <div class="stats-header">
+                                    <span>IP</span>
+                                    <span>ERA</span>
+                                    <span>WHIP</span>
+                                    <span>FIP</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="home-lineup" id="home-lineup-${game.gamePk}">
@@ -431,6 +452,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="player-rows">
                             <!-- Players will be added here -->
+                        </div>
+                        <div class="lineup-header">
+                            <div class="row">
+                                <div></div>
+                                <div class="stats-header">
+                                    <span>IP</span>
+                                    <span>ERA</span>
+                                    <span>WHIP</span>
+                                    <span>FIP</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -455,6 +487,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const lineupData = await fetchLineups(game.gamePk, getStartDate(dateFilter.value), formatApiDate(selectedDate));
             renderLineups(lineupData.awayBattingOrder, game.gamePk, 'away');
             renderLineups(lineupData.homeBattingOrder, game.gamePk, 'home');
+
+            // Update lineup status
+            const lineupStatus = document.getElementById(`lineup-status-${game.gamePk}`);
+            if (lineupData.awayBattingOrder.length === 0 || lineupData.homeBattingOrder.length === 0) {
+                lineupStatus.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
+            } else {
+                lineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
+            }
 
             // Add event listener for date filter change
             document.getElementById(`date-filter-${game.gamePk}`).addEventListener('change', async function() {
@@ -536,12 +576,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newLineupData = await fetchLineups(game.gamePk, newStartDate, newEndDate);
                 renderLineups(newLineupData.awayBattingOrder, game.gamePk, 'away');
                 renderLineups(newLineupData.homeBattingOrder, game.gamePk, 'home');
+
+                // Update lineup status
+                const newLineupStatus = document.getElementById(`lineup-status-${game.gamePk}`);
+                if (newLineupData.awayBattingOrder.length === 0 || newLineupData.homeBattingOrder.length === 0) {
+                    newLineupStatus.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
+                } else {
+                    newLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
+                }
             });
 
             // Add event listeners for team and dropdown
             const awayTeamDiv = gameDiv.querySelector('.away-team');
             const homeTeamDiv = gameDiv.querySelector('.home-team');
             const dropdown = gameDiv.querySelector('.dropdown');
+            const arrow = dropdown.querySelector('.arrow-container span');
 
             function setActiveClass(teamDiv) {
                 const otherTeamDiv = teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
@@ -558,6 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     lineupsDiv.classList.remove(teamTypeClass); // Remove specific team type active class
                     lineupsDiv.style.backgroundColor = ''; // Remove background color from lineups
                     dropdown.classList.remove('tm-active');
+                    arrow.innerHTML = '&#8595;';
                     
                     // Change logo back to team-cap-on-light
                     const teamId = teamDiv.getAttribute('data-team-id');
@@ -583,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     lineupsDiv.classList.add(teamTypeClass); // Add specific team type active class
                     lineupsDiv.classList.remove(otherTeamTypeClass); // Remove the other team type active class
                     dropdown.classList.add('tm-active');
+                    arrow.innerHTML = '&#8593;';                    
                     
                     // Change logo to team-cap-on-dark
                     const teamLogo = teamDiv.querySelector('.team-logo img');
@@ -602,7 +653,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             dropdown.addEventListener('click', function() {
                 const activeTeam = gameDiv.querySelector('.team.tm-active');
-                const arrow = dropdown.querySelector('.arrow-container span');
                 
                 if (dropdown.classList.contains('tm-active')) {
                     dropdown.classList.remove('tm-active');
@@ -620,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     ranksDiv.classList.remove('tm-active');
                     splitsDiv.classList.remove('tm-active');
-                    lineupsDiv.classList.remove('tm-active');
+                    lineupsDiv.classList.remove('hometm-active', 'awaytm-active');
                 } else {
                     dropdown.classList.add('tm-active');
                     arrow.innerHTML = '&#8593;';

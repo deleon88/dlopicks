@@ -113,8 +113,6 @@ header {
 .ranks {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
 }
 .ranks.tm-active{
   color: white;
@@ -128,6 +126,8 @@ header {
   align-items: center;
   justify-content: center;
   text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .rank{
   font-size: .8rem;
@@ -228,14 +228,13 @@ header {
 .player-rows {
   display: flex;
   flex-direction: column;
-  padding-right: 1rem;
+  padding-right: 0.5rem;
   padding-left: 0.5rem;
 }
 .lineup-header{
-  padding-right: 1rem;
+  padding-right: .5rem;
   padding-left: .5rem;
   padding-top: 5px;
-  padding-bottom: 5px;
 }
 .lineup-header .row {
   display: flex;
