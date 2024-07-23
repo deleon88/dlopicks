@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         playerRows.classList.add('player-rows');
 
         if (battingOrder.length === 0) {
-            playerRows.innerHTML = '<div class="row"><div class="player-info"><span>Lineup has not been confirmed yet</span></div></div>';
+            playerRows.innerHTML = '<div class="row"><div class="player-info"><span class="tbd-lineup">Lineup has not been confirmed yet</span></div></div>';
         } else {
             battingOrder.forEach((player, index) => {
                 const playerRow = document.createElement('div');
@@ -260,10 +260,19 @@ document.addEventListener('DOMContentLoaded', function() {
         lineupCard.appendChild(lineupHeader);
         lineupCard.appendChild(playerRows);
         lineupDiv.appendChild(lineupCard);
+
+        // Update the lineup status based on the presence of the lineup
+        const lineupStatusDiv = document.getElementById(`lineup-status-${gamePk}`);
+        if (battingOrder.length === 0) {
+            lineupStatusDiv.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
+        } else {
+            lineupStatusDiv.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        }
     }
 
-    function getLogoUrl(teamId, teamName) {
-        return `https://www.mlbstatic.com/team-logos/team-cap-on-light/${teamId}.svg`;
+    function getLogoUrl(teamId, teamName, isActive = false) {
+        const logoType = isActive ? 'team-cap-on-dark' : 'team-cap-on-light';
+        return `https://www.mlbstatic.com/team-logos/${logoType}/${teamId}.svg`;
     }
 
     async function renderGames(games) {
@@ -296,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
             matchupDiv.innerHTML = `
                 <div class="team away-team" data-team-id="${awayTeam.team.id}">
                     <div class="team-logo-container">
-                        <div class="team-logo" id="away-team-logo">
+                        <div class="team-logo" id="away-team-logo-${awayTeam.team.id}">
                             <img src="${getLogoUrl(awayTeam.team.id, awayTeam.team.name)}" alt="${awayTeam.team.name} logo">
                         </div>
                     </div>
@@ -309,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="team home-team" data-team-id="${homeTeam.team.id}">
                     <div class="team-logo-container">
-                        <div class="team-logo" id="home-team-logo">
+                        <div class="team-logo" id="home-team-logo-${homeTeam.team.id}">
                             <img src="${getLogoUrl(homeTeam.team.id, homeTeam.team.name)}" alt="${homeTeam.team.name} logo">
                         </div>
                     </div>
@@ -369,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const splitsDiv = document.createElement('div');
             splitsDiv.classList.add('splits');
             splitsDiv.innerHTML = `
-                <div class="lineup-status">
+                <div class="lineup-status" id="lineup-status-${game.gamePk}">
                     <span class="lineup-confirmed">Lineup Confirmed</span>
                 </div>
                 <div class="splits-btn-container">
@@ -536,33 +545,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
             function setActiveClass(teamDiv) {
                 const otherTeamDiv = teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
-
+                const teamTypeClass = teamDiv === awayTeamDiv ? 'awaytm-active' : 'hometm-active';
+                const otherTeamTypeClass = otherTeamDiv === awayTeamDiv ? 'awaytm-active' : 'hometm-active';
+            
                 if (teamDiv.classList.contains('tm-active')) {
                     teamDiv.classList.remove('tm-active');
-                    teamDiv.style.backgroundColor = '';
+                    teamDiv.style.backgroundColor = ''; // Remove background color
                     ranksDiv.classList.remove('tm-active');
                     ranksDiv.style.backgroundColor = '';
                     splitsDiv.classList.remove('tm-active');
                     splitsDiv.style.backgroundColor = '';
-                    lineupsDiv.classList.remove('tm-active');
+                    lineupsDiv.classList.remove(teamTypeClass); // Remove specific team type active class
+                    lineupsDiv.style.backgroundColor = ''; // Remove background color from lineups
                     dropdown.classList.remove('tm-active');
+                    
+                    // Change logo back to team-cap-on-light
+                    const teamId = teamDiv.getAttribute('data-team-id');
+                    const teamLogo = teamDiv.querySelector('.team-logo img');
+                    teamLogo.src = getLogoUrl(teamId, teamDiv.querySelector('.team-name').textContent);
                 } else {
                     teamDiv.classList.add('tm-active');
                     otherTeamDiv.classList.remove('tm-active');
+                    otherTeamDiv.style.backgroundColor = ''; // Remove background color from other team
+                    const otherTeamId = otherTeamDiv.getAttribute('data-team-id');
+                    const otherTeamLogo = otherTeamDiv.querySelector('.team-logo img');
+                    otherTeamLogo.src = getLogoUrl(otherTeamId, otherTeamDiv.querySelector('.team-name').textContent); // Change other team's logo back to team-cap-on-light
                     const teamId = teamDiv.getAttribute('data-team-id');
                     const teamData = teamsData.find(team => team.id == teamId);
                     if (teamData) {
                         teamDiv.style.backgroundColor = teamData.color;
+                        lineupsDiv.style.backgroundColor = teamData.color; // Set background color for lineups
                     }
                     ranksDiv.classList.add('tm-active');
                     ranksDiv.style.backgroundColor = teamData.color;
                     splitsDiv.classList.add('tm-active');
                     splitsDiv.style.backgroundColor = teamData.color;
-                    lineupsDiv.classList.add('tm-active');
+                    lineupsDiv.classList.add(teamTypeClass); // Add specific team type active class
+                    lineupsDiv.classList.remove(otherTeamTypeClass); // Remove the other team type active class
                     dropdown.classList.add('tm-active');
+                    
+                    // Change logo to team-cap-on-dark
+                    const teamLogo = teamDiv.querySelector('.team-logo img');
+                    teamLogo.src = getLogoUrl(teamId, teamDiv.querySelector('.team-name').textContent, true);
                 }
             }
-
+            
+            
+            
             awayTeamDiv.addEventListener('click', function() {
                 setActiveClass(awayTeamDiv);
             });
@@ -573,20 +602,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
             dropdown.addEventListener('click', function() {
                 const activeTeam = gameDiv.querySelector('.team.tm-active');
+                const arrow = dropdown.querySelector('.arrow-container span');
+                
                 if (dropdown.classList.contains('tm-active')) {
                     dropdown.classList.remove('tm-active');
+                    arrow.innerHTML = '&#8595;'; // Flecha hacia abajo
                     if (activeTeam) {
                         activeTeam.classList.remove('tm-active');
                         activeTeam.style.backgroundColor = '';
+                        ranksDiv.style.backgroundColor = '';
+                        splitsDiv.style.backgroundColor = '';
+                        
+                        // Change logo back to team-cap-on-light
+                        const teamId = activeTeam.getAttribute('data-team-id');
+                        const teamLogo = activeTeam.querySelector('.team-logo img');
+                        teamLogo.src = getLogoUrl(teamId, activeTeam.querySelector('.team-name').textContent);
                     }
                     ranksDiv.classList.remove('tm-active');
                     splitsDiv.classList.remove('tm-active');
                     lineupsDiv.classList.remove('tm-active');
                 } else {
                     dropdown.classList.add('tm-active');
+                    arrow.innerHTML = '&#8593;';
                     setActiveClass(homeTeamDiv);
                 }
             });
+            
         }
     }
 
