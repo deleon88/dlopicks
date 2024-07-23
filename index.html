@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dlo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo"></div>
+            <div class="menu"></div>
+        </div>
+    </header>
+    <section class="slider">
+        <div class="slider-container">
+            <div class="slider-game"></div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="schedule-header">
+            <h1>MLB Games of the Day</h1>
+            <section class="calendar-section">
+                <div class="calendar-control">
+                    <div class="past-day">
+                        <pre class="left">◀</pre>
+                    </div>
+                    <input type="text" name="calendar-input" id="calendar-input" readonly>
+                    <div class="next-day">
+                        <pre class="right">▶</pre>
+                    </div>
+                </div>
+                <div class="calendar-container">
+                    <div class="calendar">
+                        <div class="calendar-header">
+                            <div class="cal-left">
+                                <pre class="left">◀</pre>
+                            </div>
+                            <div class="cal-month">
+                                <span>Month Year</span>
+                            </div>
+                            <div class="cal-right">
+                                <pre class="right">▶</pre>
+                            </div>
+                        </div>
+                        <div class="calendar-content">
+                            <div class="week">
+                                <div>Mo</div>
+                                <div>Tu</div>
+                                <div>We</div>
+                                <div>Th</div>
+                                <div>Fr</div>
+                                <div>Sa</div>
+                                <div>Su</div>
+                            </div>
+                            <div class="days" id="calendar-days"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="games-container">
+            <div class="game">
+                <div class="game-header">
+                    <span>4:45 pm</span>
+                    <span>@ Ballpark</span>
+                </div>
+                <div class="matchup">
+                    <div class="team away-team">
+                        <div class="team-logo-container">
+                            <div class="team-logo" id="away-team-logo"></div>
+                        </div>
+                        <div class="team-info">
+                            <span class="team-name">Away Team</span>
+                            <span class="team-record">(10-10)</span>
+                            <span class="probable-pitcher">Away Pitcher</span>
+                            <span class="pitcher-hand">RHP</span>
+                        </div>
+                    </div>
+                    <div class="team home-team">
+                        <div class="team-logo-container">
+                            <div class="team-logo" id="home-team-logo">
+                            </div>
+                        </div>
+                        <div class="team-info">
+                            <span class="team-name">Home Team</span>
+                            <span class="team-record">(10-10)</span>
+                            <span class="probable-pitcher">Home Pitcher</span>
+                            <span class="pitcher-hand">LHP</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ranks">
+                    <div class="rank-row">
+                        <div class="rank-away">
+                            <span class="stat" id="stat-avg-away">.262</span>
+                            <span class="rank" id="rank-avg-away">(#1)</span>
+                        </div>
+                        <div class="rank-cat">
+                            <span id="team-avg">AVG</span>
+                        </div>
+                        <div class="rank-home">
+                            <span class="stat" id="stat-avg-home">.255</span>
+                            <span class="rank" id="rank-avg-home">(#5)</span>
+                        </div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-away">
+                            <span class="stat" id="stat-ops-away">.740</span>
+                            <span class="rank" id="rank-ops-away">(#8)</span>
+                        </div>
+                        <div class="rank-cat">
+                            <span id="team-ops">OPS</span>
+                        </div>
+                        <div class="rank-home">
+                            <span class="stat" id="stat-ops-home">.683</span>
+                            <span class="rank" id="rank-ops-home">(#25)</span>
+                        </div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-away">
+                            <span class="stat" id="stat-rpg-away">105</span>
+                            <span class="rank" id="rank-rpg-away">(#8)</span>
+                        </div>
+                        <div class="rank-cat">
+                            <span id="team-rpg">RPG</span>
+                        </div>
+                        <div class="rank-home">
+                            <span class="stat" id="stat-rpg-home">78</span>
+                            <span class="rank" id="rank-rpg-home">(#25)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="splits">
+                    <div class="lineup-status">
+                        <span class="lineup-confirmed">Lineup Confirmed</span>
+                    </div>
+                    <div class="splits-btn-container">
+                        <button class="splits-btn">Magic Splits</button>
+                    </div>
+                    <div class="filter">
+                        <select name="date-filter" id="date-filter">
+                            <option selected value="season">Season</option>
+                            <option value="60days">Last 60 days</option>
+                            <option value="30days">Last 30 days</option>
+                            <option value="14days">Last 14 days</option>
+                            <option value="7days">Last 7 days</option>
+                            <option value="1stHalf">1st Half</option>
+                            <option value="2ndHalf">2nd Half</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="lineups">
+                    <div class="away-lineup" id="away-lineup">
+                        <div class="lineup-card">
+                            <div class="lineup-header">
+                                <div class="row">
+                                    <div></div>
+                                    <div class="stats-header">
+                                        <span>AVG</span>
+                                        <span>OBP</span>
+                                        <span>OPS</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="player-rows">
+                                <div class="row">
+                                    <div class="player-info">
+                                        <span class="bat-ord" id="away-bat-ord-1">1.</span>
+                                        <span class="bat-name" id="away-bat-name-1">Player #1</span>
+                                        <span class="bat-pos" id="away-bat-pos-1">DH</span>
+                                    </div>
+                                    <div class="player-stats">
+                                        <span class="bat-avg" id="away-bat-avg-1">.300</span>
+                                        <span class="bat-obp" id="away-bat-obp-1">.343</span>
+                                        <span class="bat-ops" id="away-bat-ops-1">1.190</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="player-info">
+                                        <span class="bat-ord" id="away-bat-ord-2">2.</span>
+                                        <span class="bat-name" id="away-bat-name-2">Player #2</span>
+                                        <span class="bat-pos" id="away-bat-pos-2">1B</span>
+                                    </div>
+                                    <div class="player-stats">
+                                        <span class="bat-avg" id="away-bat-avg-2">.280</span>
+                                        <span class="bat-obp" id="away-bat-obp-2">.299</span>
+                                        <span class="bat-ops" id="away-bat-ops-2">.750</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="home-lineup" id="home-lineup">
+                        <div class="lineup-card">
+                            <div class="lineup-header">
+                                <div class="row">
+                                    <div></div>
+                                    <div class="stats-header">
+                                        <span>AVG</span>
+                                        <span>OBP</span>
+                                        <span>OPS</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="player-rows">
+                                <div class="row">
+                                    <div class="player-info">
+                                        <span class="bat-ord" id="home-bat-ord-1">1.</span>
+                                        <span class="bat-name" id="home-bat-name-1">Player #1</span>
+                                        <span class="bat-pos" id="home-bat-pos-1">DH</span>
+                                    </div>
+                                    <div class="player-stats">
+                                        <span class="bat-avg" id="home-bat-avg-1">.300</span>
+                                        <span class="bat-obp" id="home-bat-obp-1">.343</span>
+                                        <span class="bat-ops" id="home-bat-ops-1">1.190</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="player-info">
+                                        <span class="bat-ord" id="home-bat-ord-2">2.</span>
+                                        <span class="bat-name" id="home-bat-name-2">Player #2</span>
+                                        <span class="bat-pos" id="home-bat-pos-2">1B</span>
+                                    </div>
+                                    <div class="player-stats">
+                                        <span class="bat-avg" id="home-bat-avg-2">.280</span>
+                                        <span class="bat-obp" id="home-bat-obp-2">.299</span>
+                                        <span class="bat-ops" id="home-bat-ops-2">.750</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <div class="arrow-container">
+                        <span>&#8595;</span>
+                    </div>
+                </div>
+        </div>
+    </section>
+    <script src="script.js"></script>
+</body>
+</html>

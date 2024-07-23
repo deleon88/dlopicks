@@ -1,0 +1,351 @@
+* {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+header {
+  height: 3rem;
+  width: 100%;
+  background-color: white;
+}
+.slider {
+  height: 3rem;
+  width: 100%;
+  background-color: green;
+}
+.content {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: #f0f0f0;
+  width: 100%;
+}
+.schedule-header h1 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.games-container {
+  padding: 1rem;
+}
+.game {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+}
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.2);
+}
+.matchup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  justify-content: space-between;
+}
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: .5rem;
+}
+.team:hover{
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+.away-team {
+  padding-right: 1rem;
+}
+.home-team {
+  padding-left: 1rem;
+}
+.team.tm-active{
+  color: white;
+}
+.team.tm-active .team-logo{
+  background-color: transparent;
+  height: 5rem;
+  width: 5rem;
+}
+.team-logo-container {
+  height: 5rem;
+  width: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.team-logo {
+  width: 4rem;
+  height: 4rem;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.team-logo img {
+  object-fit: contain;
+  max-width: 70%;
+  max-height: 70%;
+  margin: 0 auto;
+}
+.team-info {
+  display: flex;
+  flex-direction: column;
+}
+.team-name {
+  font-weight: bold;
+}
+.team-record {
+  font-size: 0.8rem;
+}
+.probable-pitcher {
+  font-size: 0.9rem;
+}
+.pitcher-hand {
+  font-size: 0.8rem;
+}
+.ranks {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.rank-row {
+  display: contents;
+}
+.rank-row > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.splits {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+}
+.lineup-status{
+  opacity: 0;
+  pointer-events: none;
+}
+.lineup-status span {
+  font-size: 0.8rem;
+  padding: 4px;
+  border-radius: 5px;
+}
+.splits-btn{
+  font-size: .8rem;
+  height: 1.5rem;
+  padding-left: 5px;
+  padding-right: 5px;
+  border: 2px solid white;
+  border-radius: 5px;
+  background-color: transparent;
+}
+.lineup-confirmed {
+  background-color: #76ff7a;
+  color: #043927;
+}
+.lineup-projected {
+  background-color: #ffff8f;
+  color: #e49b0f;
+}
+.filter select {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font-size: 0.8rem;
+  width: auto;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  color: #333;
+  height: 1.5rem;
+}
+.filter option {
+  text-align: left;
+}
+.lineups {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  display: none;
+}
+.away-lineup {
+  display: none;
+}
+.home-lineup {
+  display: none;
+}
+.lineups > div {
+  margin-bottom: 0.5rem;
+}
+.lineup-card {
+  background-color: white;
+  border-radius: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-bottom: 0.5rem;
+}
+.player-rows {
+  display: flex;
+  flex-direction: column;
+  padding-right: 1rem;
+  padding-left: 0.5rem;
+}
+.lineup-header .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+}
+.stats-header {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+.stats-header span,
+.player-stats span {
+  display: inline-block;
+  width: 45px;
+  text-align: center;
+}
+.player-rows .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 1.5rem;
+}
+.player-info {
+  width: 50%;
+  display: flex;
+}
+.player-stats {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.player-info .bat-ord {
+  font-size: 0.7rem;
+  margin-right: 5px;
+}
+
+.player-info .bat-name {
+  font-size: 0.8rem;
+  margin-right: 5px;
+}
+
+.player-info .bat-pos {
+  font-size: 0.7rem;
+}
+.row .player-stats {
+  font-size: 0.8rem;
+}
+.dropdown {
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+.dropdown:hover {
+  cursor: pointer;
+  background-color: #f0f0f0;
+}
+.calendar-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.calendar-control input {
+  height: 1.5rem;
+  width: 11rem;
+  cursor: pointer;
+}
+.calendar-control > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+}
+.calendar-control > div:hover {
+  cursor: pointer;
+}
+.past-day {
+  padding-right: 0.5rem;
+}
+.next-day {
+  padding-left: 0.5rem;
+}
+.calendar-container {
+  width: 11rem;
+  margin: 0 auto;
+}
+.calendar {
+  background-color: white;
+  padding-bottom: 0.5rem;
+  display: none;
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: 5px;
+}
+.calendar-header > div {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.cal-month span {
+  font-size: 0.9rem;
+}
+.calendar-content {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.calendar-content > div {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-size: 0.8rem;
+}
+.cal-month {
+  width: 60%;
+}
+.cal-left,
+.cal-right {
+  width: 20%;
+}
+.cal-left:hover,
+.cal-right:hover {
+  cursor: pointer;
+  background-color: #f0f0f0;
+}
+.week {
+  margin-bottom: 0.5rem;
+}
+.days div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  aspect-ratio: 1/1;
+  cursor: pointer;
+}
+.days > div.active {
+  background-color: green;
+  color: white;
+  border-radius: 50%;
+}
