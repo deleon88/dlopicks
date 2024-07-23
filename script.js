@@ -12,15 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentDate = new Date();
     let selectedDate = new Date();
-    let teamsData = [];
-
-    // Load teams data from JSON file
-    fetch('teams.json')
-        .then(response => response.json())
-        .then(data => {
-            teamsData = data;
-        })
-        .catch(error => console.error('Error loading teams data:', error));
 
     function formatDate(date) {
         const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -275,12 +266,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return `https://www.mlbstatic.com/team-logos/team-cap-on-light/${teamId}.svg`;
     }
 
-    function getTeamColor(teamId) {
-        const team = teamsData.find(t => t.id === teamId);
-        return team ? team.color : '#FFFFFF';
-    }
-
     async function renderGames(games) {
+        const teamsDataResponse = await fetch('teams.json');
+        const teamsData = await teamsDataResponse.json();
+        
         gamesContainer.innerHTML = '';
         for (const game of games) {
             const gameDiv = document.createElement('div');
@@ -540,46 +529,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderLineups(newLineupData.homeBattingOrder, game.gamePk, 'home');
             });
 
-            // Event listeners for toggling .tm-active class
-            const awayTeamElement = gameDiv.querySelector('.away-team');
-            const homeTeamElement = gameDiv.querySelector('.home-team');
-            const arrowContainer = gameDiv.querySelector('.arrow-container span');
+            // Add event listeners for team and dropdown
+            const awayTeamDiv = gameDiv.querySelector('.away-team');
+            const homeTeamDiv = gameDiv.querySelector('.home-team');
+            const dropdown = gameDiv.querySelector('.dropdown');
 
-            awayTeamElement.addEventListener('click', function() {
-                if (awayTeamElement.classList.contains('tm-active')) {
-                    awayTeamElement.classList.remove('tm-active');
-                    awayTeamElement.style.backgroundColor = '';
+            function setActiveClass(teamDiv) {
+                const otherTeamDiv = teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
+
+                if (teamDiv.classList.contains('tm-active')) {
+                    teamDiv.classList.remove('tm-active');
+                    teamDiv.style.backgroundColor = '';
+                    ranksDiv.classList.remove('tm-active');
+                    ranksDiv.style.backgroundColor = '';
+                    splitsDiv.classList.remove('tm-active');
+                    splitsDiv.style.backgroundColor = '';
+                    lineupsDiv.classList.remove('tm-active');
+                    dropdown.classList.remove('tm-active');
                 } else {
-                    awayTeamElement.classList.add('tm-active');
-                    awayTeamElement.style.backgroundColor = getTeamColor(awayTeam.team.id);
-                    homeTeamElement.classList.remove('tm-active');
-                    homeTeamElement.style.backgroundColor = '';
+                    teamDiv.classList.add('tm-active');
+                    otherTeamDiv.classList.remove('tm-active');
+                    const teamId = teamDiv.getAttribute('data-team-id');
+                    const teamData = teamsData.find(team => team.id == teamId);
+                    if (teamData) {
+                        teamDiv.style.backgroundColor = teamData.color;
+                    }
+                    ranksDiv.classList.add('tm-active');
+                    ranksDiv.style.backgroundColor = teamData.color;
+                    splitsDiv.classList.add('tm-active');
+                    splitsDiv.style.backgroundColor = teamData.color;
+                    lineupsDiv.classList.add('tm-active');
+                    dropdown.classList.add('tm-active');
                 }
+            }
+
+            awayTeamDiv.addEventListener('click', function() {
+                setActiveClass(awayTeamDiv);
             });
 
-            homeTeamElement.addEventListener('click', function() {
-                if (homeTeamElement.classList.contains('tm-active')) {
-                    homeTeamElement.classList.remove('tm-active');
-                    homeTeamElement.style.backgroundColor = '';
-                } else {
-                    homeTeamElement.classList.add('tm-active');
-                    homeTeamElement.style.backgroundColor = getTeamColor(homeTeam.team.id);
-                    awayTeamElement.classList.remove('tm-active');
-                    awayTeamElement.style.backgroundColor = '';
-                }
+            homeTeamDiv.addEventListener('click', function() {
+                setActiveClass(homeTeamDiv);
             });
 
-            arrowContainer.addEventListener('click', function() {
-                if (homeTeamElement.classList.contains('tm-active')) {
-                    homeTeamElement.classList.remove('tm-active');
-                    homeTeamElement.style.backgroundColor = '';
-                    arrowContainer.innerHTML = '&#8595;';
+            dropdown.addEventListener('click', function() {
+                const activeTeam = gameDiv.querySelector('.team.tm-active');
+                if (dropdown.classList.contains('tm-active')) {
+                    dropdown.classList.remove('tm-active');
+                    if (activeTeam) {
+                        activeTeam.classList.remove('tm-active');
+                        activeTeam.style.backgroundColor = '';
+                    }
+                    ranksDiv.classList.remove('tm-active');
+                    splitsDiv.classList.remove('tm-active');
+                    lineupsDiv.classList.remove('tm-active');
                 } else {
-                    homeTeamElement.classList.add('tm-active');
-                    homeTeamElement.style.backgroundColor = getTeamColor(homeTeam.team.id);
-                    awayTeamElement.classList.remove('tm-active');
-                    awayTeamElement.style.backgroundColor = '';
-                    arrowContainer.innerHTML = '&#8593;';
+                    dropdown.classList.add('tm-active');
+                    setActiveClass(homeTeamDiv);
                 }
             });
         }

@@ -116,6 +116,9 @@ header {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+.ranks.tm-active{
+  color: white;
+}
 .rank-row {
   display: contents;
 }
@@ -149,6 +152,16 @@ header {
   border: 2px solid white;
   border-radius: 5px;
   background-color: transparent;
+  color: white;
+  opacity: 0;
+  pointer-events: none;
+}
+.splits.tm-active .splits-btn{
+  opacity: 1;
+  pointer-events: all;
+}
+.splits.tm-active .splits-btn:hover{
+  cursor: pointer;
 }
 .lineup-confirmed {
   background-color: #76ff7a;
@@ -178,6 +191,9 @@ header {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   display: none;
+}
+.lineups.tm-active{
+  display: block;
 }
 .away-lineup {
   display: none;
