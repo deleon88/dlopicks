@@ -380,9 +380,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const nameParts = name.split(" ");
         if (nameParts.length > 1) {
           const middleIndex = Math.floor(nameParts.length / 2);
-          return `${nameParts
-            .slice(0, middleIndex)
-            .join(" ")}<br>${nameParts.slice(middleIndex).join(" ")}`;
+          return `${nameParts.slice(0, middleIndex).join(" ")}<br>${nameParts
+            .slice(middleIndex)
+            .join(" ")}`;
         }
         return name;
       };
@@ -438,52 +438,40 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="rank-row">
           <div class="rank-away">
             <span class="stat" id="stat-avg-away">${awayTeam.stats.avg}</span>
-            <span class="rank" id="rank-avg-away">(#${
-              awayTeam.stats.avgRank
-            })</span>
+            <span class="rank" id="rank-avg-away">(#${awayTeam.stats.avgRank})</span>
           </div>
           <div class="rank-cat">
             <span id="team-avg">AVG</span>
           </div>
           <div class="rank-home">
             <span class="stat" id="stat-avg-home">${homeTeam.stats.avg}</span>
-            <span class="rank" id="rank-avg-home">(#${
-              homeTeam.stats.avgRank
-            })</span>
+            <span class="rank" id="rank-avg-home">(#${homeTeam.stats.avgRank})</span>
           </div>
         </div>
         <div class="rank-row">
           <div class="rank-away">
             <span class="stat" id="stat-ops-away">${awayTeam.stats.ops}</span>
-            <span class="rank" id="rank-ops-away">(#${
-              awayTeam.stats.opsRank
-            })</span>
+            <span class="rank" id="rank-ops-away">(#${awayTeam.stats.opsRank})</span>
           </div>
           <div class="rank-cat">
             <span id="team-ops">OPS</span>
           </div>
           <div class="rank-home">
             <span class="stat" id="stat-ops-home">${homeTeam.stats.ops}</span>
-            <span class="rank" id="rank-ops-home">(#${
-              homeTeam.stats.opsRank
-            })</span>
+            <span class="rank" id="rank-ops-home">(#${homeTeam.stats.opsRank})</span>
           </div>
         </div>
         <div class="rank-row">
           <div class="rank-away">
             <span class="stat" id="stat-rpg-away">${awayRPG}</span>
-            <span class="rank" id="rank-rpg-away">(#${
-              awayTeam.stats.runsRank
-            })</span>
+            <span class="rank" id="rank-rpg-away">(#${awayTeam.stats.runsRank})</span>
           </div>
           <div class="rank-cat">
             <span id="team-rpg">RPG</span>
           </div>
           <div class="rank-home">
             <span class="stat" id="stat-rpg-home">${homeRPG}</span>
-            <span class="rank" id="rank-rpg-home">(#${
-              homeTeam.stats.runsRank
-            })</span>
+            <span class="rank" id="rank-rpg-home">(#${homeTeam.stats.runsRank})</span>
           </div>
         </div>
       `;
@@ -561,9 +549,11 @@ document.addEventListener("DOMContentLoaded", function () {
         `#lineup-status-${game.gamePk} .away-lineup-status`
       );
       if (lineupData.awayBattingOrder.length === 0) {
-        awayLineupStatus.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
+        awayLineupStatus.innerHTML =
+          '<span class="lineup-projected">Projected Lineup</span>';
       } else {
-        awayLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        awayLineupStatus.innerHTML =
+          '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
       // Update lineup status for home team
@@ -571,9 +561,11 @@ document.addEventListener("DOMContentLoaded", function () {
         `#lineup-status-${game.gamePk} .home-lineup-status`
       );
       if (lineupData.homeBattingOrder.length === 0) {
-        homeLineupStatus.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
+        homeLineupStatus.innerHTML =
+          '<span class="lineup-projected">Projected Lineup</span>';
       } else {
-        homeLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        homeLineupStatus.innerHTML =
+          '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
       // Add event listener for date filter change
@@ -619,61 +611,41 @@ document.addEventListener("DOMContentLoaded", function () {
           ranksDiv.innerHTML = `
             <div class="rank-row">
               <div class="rank-away">
-                <span class="stat" id="stat-avg-away">${
-                  awayTeam.stats.avg
-                }</span>
-                <span class="rank" id="rank-avg-away">(#${
-                  awayTeam.stats.avgRank
-                })</span>
+                <span class="stat" id="stat-avg-away">${awayTeam.stats.avg}</span>
+                <span class="rank" id="rank-avg-away">(#${awayTeam.stats.avgRank})</span>
               </div>
               <div class="rank-cat">
                 <span id="team-avg">AVG</span>
               </div>
               <div class="rank-home">
-                <span class="stat" id="stat-avg-home">${
-                  homeTeam.stats.avg
-                }</span>
-                <span class="rank" id="rank-avg-home">(#${
-                  homeTeam.stats.avgRank
-                })</span>
+                <span class="stat" id="stat-avg-home">${homeTeam.stats.avg}</span>
+                <span class="rank" id="rank-avg-home">(#${homeTeam.stats.avgRank})</span>
               </div>
             </div>
             <div class="rank-row">
               <div class="rank-away">
-                <span class="stat" id="stat-ops-away">${
-                  awayTeam.stats.ops
-                }</span>
-                <span class="rank" id="rank-ops-away">(#${
-                  awayTeam.stats.opsRank
-                })</span>
+                <span class="stat" id="stat-ops-away">${awayTeam.stats.ops}</span>
+                <span class="rank" id="rank-ops-away">(#${awayTeam.stats.opsRank})</span>
               </div>
               <div class="rank-cat">
                 <span id="team-ops">OPS</span>
               </div>
               <div class="rank-home">
-                <span class="stat" id="stat-ops-home">${
-                  homeTeam.stats.ops
-                }</span>
-                <span class="rank" id="rank-ops-home">(#${
-                  homeTeam.stats.opsRank
-                })</span>
+                <span class="stat" id="stat-ops-home">${homeTeam.stats.ops}</span>
+                <span class="rank" id="rank-ops-home">(#${homeTeam.stats.opsRank})</span>
               </div>
             </div>
             <div class="rank-row">
               <div class="rank-away">
                 <span class="stat" id="stat-rpg-away">${newAwayRPG}</span>
-                <span class="rank" id="rank-rpg-away">(#${
-                  awayTeam.stats.runsRank
-                })</span>
+                <span class="rank" id="rank-rpg-away">(#${awayTeam.stats.runsRank})</span>
               </div>
               <div class="rank-cat">
                 <span id="team-rpg">RPG</span>
               </div>
               <div class="rank-home">
                 <span class="stat" id="stat-rpg-home">${newHomeRPG}</span>
-                <span class="rank" id="rank-rpg-home">(#${
-                  homeTeam.stats.runsRank
-                })</span>
+                <span class="rank" id="rank-rpg-home">(#${homeTeam.stats.runsRank})</span>
               </div>
             </div>
           `;
@@ -719,7 +691,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const arrow = dropdown.querySelector(".arrow-container span");
 
       function setActiveClass(teamDiv) {
-        const otherTeamDiv = teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
+        const otherTeamDiv =
+          teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
         const teamTypeClass =
           teamDiv === awayTeamDiv ? "awaytm-active" : "hometm-active";
         const otherTeamTypeClass =
