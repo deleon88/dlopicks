@@ -243,7 +243,7 @@ header {
   justify-content: space-between;
 }
 .stats-header {
-  width: 50%;
+  width: 60%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -267,18 +267,18 @@ header {
   align-items: center;
 }
 .player-info {
-  width: 50%;
+  width: 40%;
   display: flex;
 }
 .player-stats {
-  width: 50%;
+  width: 60%;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .player-info .bat-ord {
   font-size: 0.7rem;
-  margin-right: 5px;
+  margin-right: 2px;
 }
 
 .player-info .bat-name {
