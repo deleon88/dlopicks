@@ -24,12 +24,12 @@ header {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
-.control{
+.control {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 70%;
-  padding: .5rem;
+  padding: 0.5rem;
   margin: 0 auto;
 }
 .games-container {
@@ -152,10 +152,10 @@ header {
   border-radius: 5px;
   display: none;
 }
-.splits.hometm-active .home-lineup-status span{
+.splits.hometm-active .home-lineup-status span {
   display: block;
 }
-.splits.awaytm-active .away-lineup-status span{
+.splits.awaytm-active .away-lineup-status span {
   display: block;
 }
 .splits-btn {
@@ -194,7 +194,7 @@ header {
 }
 .filter option {
   text-align: left;
-  font-size: .7rem;
+  font-size: 0.7rem;
 }
 .lineups {
   padding: 1rem;
