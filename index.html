@@ -1,84 +1,88 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dlo</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <header>
-            <div class="header-content">
-                <div class="logo"></div>
-                <div class="menu"></div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dlo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-content">
+        <div class="logo"></div>
+        <div class="menu"></div>
+      </div>
+    </header>
+    <section class="slider">
+      <div class="slider-container">
+        <div class="slider-game"></div>
+      </div>
+    </section>
+    <section class="content">
+      <div class="schedule-header">
+        <h1>MLB Games of the Day</h1>
+        <section class="calendar-section">
+          <div class="calendar-control">
+            <div class="past-day">
+              <pre class="left">◀</pre>
             </div>
-        </header>
-        <section class="slider">
-            <div class="slider-container">
-                <div class="slider-game"></div>
+            <input
+              type="text"
+              name="calendar-input"
+              id="calendar-input"
+              readonly
+            />
+            <div class="next-day">
+              <pre class="right">▶</pre>
             </div>
-        </section>
-        <section class="content">
-            <div class="schedule-header">
-                <h1>MLB Games of the Day</h1>
-                <section class="calendar-section">
-                    <div class="calendar-control">
-                        <div class="past-day">
-                            <pre class="left">◀</pre>
-                        </div>
-                        <input type="text" name="calendar-input" id="calendar-input" readonly>
-                        <div class="next-day">
-                            <pre class="right">▶</pre>
-                        </div>
-                    </div>
-                    <div class="calendar-container">
-                        <div class="calendar">
-                            <div class="calendar-header">
-                                <div class="cal-left">
-                                    <pre class="left">◀</pre>
-                                </div>
-                                <div class="cal-month">
-                                    <span>Month Year</span>
-                                </div>
-                                <div class="cal-right">
-                                    <pre class="right">▶</pre>
-                                </div>
-                            </div>
-                            <div class="calendar-content">
-                                <div class="week">
-                                    <div>Mo</div>
-                                    <div>Tu</div>
-                                    <div>We</div>
-                                    <div>Th</div>
-                                    <div>Fr</div>
-                                    <div>Sa</div>
-                                    <div>Su</div>
-                                </div>
-                                <div class="days" id="calendar-days"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <div class="control">
-                    <div class="date-filter-all">
-                        <select name="date-filter-all" id="date-filter-all">
-                            <option selected value="season">Season</option>
-                            <option value="60days">Last 60 days</option>
-                            <option value="30days">Last 30 days</option>
-                            <option value="14days">Last 14 days</option>
-                            <option value="7days">Last 7 days</option>
-                            <option value="1stHalf">1st Half</option>
-                            <option value="2ndHalf">2nd Half</option>
-                        </select>
-                    </div>
-                    <div class="show-lineups">
-                        <button type="button" id="show-lineups-btn">Show Lineups</button>
-                    </div>
+          </div>
+          <div class="calendar-container">
+            <div class="calendar">
+              <div class="calendar-header">
+                <div class="cal-left">
+                  <pre class="left">◀</pre>
                 </div>
+                <div class="cal-month">
+                  <span>Month Year</span>
+                </div>
+                <div class="cal-right">
+                  <pre class="right">▶</pre>
+                </div>
+              </div>
+              <div class="calendar-content">
+                <div class="week">
+                  <div>Mo</div>
+                  <div>Tu</div>
+                  <div>We</div>
+                  <div>Th</div>
+                  <div>Fr</div>
+                  <div>Sa</div>
+                  <div>Su</div>
+                </div>
+                <div class="days" id="calendar-days"></div>
+              </div>
             </div>
-            <div class="games-container">
-            </div>
+          </div>
         </section>
-        <script src="script.js"></script>
-    </body>
-    </html>
+        <div class="control">
+          <div class="date-filter-all">
+            <select name="date-filter-all" id="date-filter-all">
+              <option selected value="season">Season</option>
+              <option value="60days">Last 60 days</option>
+              <option value="30days">Last 30 days</option>
+              <option value="14days">Last 14 days</option>
+              <option value="7days">Last 7 days</option>
+              <option value="1stHalf">1st Half</option>
+              <option value="2ndHalf">2nd Half</option>
+            </select>
+          </div>
+          <div class="show-lineups">
+            <button type="button" id="show-lineups-btn">Show Lineups</button>
+          </div>
+        </div>
+      </div>
+      <div class="games-container"></div>
+    </section>
+    <script src="script.js"></script>
+  </body>
+</html>
