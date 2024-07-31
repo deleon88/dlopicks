@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const calendarDays = document.getElementById("calendar-days");
   const calendarMonthYear = document.querySelector(".cal-month span");
   const calLeft = document.querySelector(".calendar-header .left");
@@ -9,9 +9,32 @@ document.addEventListener("DOMContentLoaded", function () {
   const nextDay = document.querySelector(".next-day");
   const gamesContainer = document.querySelector(".games-container");
   const dateFilterAll = document.getElementById("date-filter-all");
+  const showLineupsBtn = document.getElementById("show-lineups-btn");
 
   let currentDate = new Date();
   let selectedDate = new Date();
+
+  let teams = [];
+  try {
+    const response = await fetch('/teams.json');
+    teams = await response.json();
+  } catch (error) {
+    console.error('Error fetching teams data:', error);
+  }
+
+  const teamMap = {};
+  teams.forEach(team => {
+    teamMap[team.fullName] = { id: team.id, color: team.color, abbreviation: team.abbreviation, fullName: team.fullName, briefName: team.briefName };
+  });
+
+  function formatTeamName(name) {
+    const team = teams.find(t => t.fullName === name);
+    if (team) {
+      const city = name.replace(team.briefName, "").trim();
+      return `${city}<br>${team.briefName}`;
+    }
+    return name;
+  }
 
   function formatDate(date) {
     const daysOfWeek = [
@@ -98,12 +121,12 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const data = await response.json();
     const stats =
-      data.stats[0]?.splits.find((split) => split.player.id === playerId)
-        ?.stat || {};
+      data.stats[0]?.splits.find((split) => split.player.id === playerId)?.stat || {};
     return {
       avg: stats.avg || "-",
       obp: stats.obp || "-",
       ops: stats.ops || "-",
+      pa: stats.plateAppearances || "-" // Plate Appearances
     };
   }
 
@@ -261,16 +284,16 @@ document.addEventListener("DOMContentLoaded", function () {
     return { awayBattingOrder, homeBattingOrder };
   }
 
-  function renderLineups(battingOrder, gamePk, teamType) {
+  function renderLineups(battingOrder, gamePk, teamType, pitcher) {
     const lineupDiv = document.getElementById(`${teamType}-lineup-${gamePk}`);
     lineupDiv.innerHTML = "";
-
+  
     const lineupCard = document.createElement("div");
     lineupCard.classList.add("lineup-card");
-
+  
     const playerRows = document.createElement("div");
     playerRows.classList.add("player-rows");
-
+  
     if (battingOrder.length === 0) {
       playerRows.innerHTML =
         '<div class="row"><div class="player-info"><span class="tbd-lineup">Lineup has not been confirmed yet</span></div></div>';
@@ -281,23 +304,24 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="row">
           <div></div>
           <div class="stats-header">
+            <span>PA</span>
             <span>AVG</span>
             <span>OBP</span>
             <span>OPS</span>
           </div>
         </div>
       `;
-
+  
       battingOrder.forEach((player, index) => {
         const playerRow = document.createElement("div");
         playerRow.classList.add("row");
-
+  
         // Formatear el nombre
         const fullName = player.person.fullName;
         const nameParts = fullName.split(" ");
         const initial = nameParts[0].charAt(0);
         const lastName = nameParts.slice(1).join(" ");
-
+  
         playerRow.innerHTML = `
           <div class="player-info">
             <span class="bat-ord">${index + 1}.</span>
@@ -305,6 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <span class="bat-pos">${player.position.abbreviation}</span>
           </div>
           <div class="player-stats">
+            <span class="bat-pa">${player.pa || "-"}</span>
             <span class="bat-avg">${player.avg || "-"}</span>
             <span class="bat-obp">${player.obp || "-"}</span>
             <span class="bat-ops">${player.ops || "-"}</span>
@@ -312,10 +337,10 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         playerRows.appendChild(playerRow);
       });
-
+  
       lineupCard.appendChild(lineupHeader); // Add the first header if there is a lineup
       lineupCard.appendChild(playerRows); // Add the player rows
-
+  
       const secondLineupHeader = document.createElement("div");
       secondLineupHeader.classList.add("lineup-header");
       secondLineupHeader.innerHTML = `
@@ -330,10 +355,43 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
       `;
       lineupCard.appendChild(secondLineupHeader); // Add the second header if there is a lineup
+  
+      const pitcherRows = document.createElement("div");
+      pitcherRows.classList.add("player-rows");
+  
+      const pitcherRow = document.createElement("div");
+      pitcherRow.classList.add("row");
+  
+      if (pitcher) {
+        const fullName = pitcher.person.fullName;
+        const nameParts = fullName.split(" ");
+        const initial = nameParts[0].charAt(0);
+        const lastName = nameParts.slice(1).join(" ");
+  
+        pitcherRow.innerHTML = `
+          <div class="player-info">
+            <span class="bat-name">${initial}. ${lastName}</span>
+            <span class="bat-pos">P</span>
+          </div>
+          <div class="player-stats">
+            <span class="bat-ip">${pitcher.ip || "-"}</span>
+            <span class="bat-era">${pitcher.era || "-"}</span>
+            <span class="bat-whip">${pitcher.whip || "-"}</span>
+            <span class="bat-fip">${pitcher.fip || "-"}</span>
+          </div>
+        `;
+      } else {
+        pitcherRow.innerHTML = '<div class="player-info"><span class="tbd-lineup">Pitcher has not been confirmed yet</span></div>';
+      }
+      pitcherRows.appendChild(pitcherRow); // Add the pitcher row within the new player-rows
+  
+      lineupCard.appendChild(pitcherRows); // Add the pitcher rows
+  
+      lineupDiv.appendChild(lineupCard);
     }
-
-    lineupDiv.appendChild(lineupCard);
   }
+  
+  
 
   function getLogoUrl(teamId, teamName, isActive = false) {
     const logoType = isActive ? "team-cap-on-dark" : "team-cap-on-light";
@@ -341,7 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function renderGames(games) {
-    const teamsDataResponse = await fetch("teams.json");
+    const teamsDataResponse = await fetch('/teams.json');
     const teamsData = await teamsDataResponse.json();
 
     // Ordenar los juegos por la hora de inicio
@@ -377,12 +435,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const homeRPG = (homeTeam.stats.runs / homeTeam.stats.games).toFixed(2);
 
       const formatTeamName = (name) => {
-        const nameParts = name.split(" ");
-        if (nameParts.length > 1) {
-          const middleIndex = Math.floor(nameParts.length / 2);
-          return `${nameParts.slice(0, middleIndex).join(" ")}<br>${nameParts
-            .slice(middleIndex)
-            .join(" ")}`;
+        const team = teamsData.find(t => t.fullName === name);
+        if (team) {
+          const city = name.replace(team.briefName, "").trim();
+          return `${city}<br>${team.briefName}`;
         }
         return name;
       };
@@ -438,40 +494,52 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="rank-row">
           <div class="rank-away">
             <span class="stat" id="stat-avg-away">${awayTeam.stats.avg}</span>
-            <span class="rank" id="rank-avg-away">(#${awayTeam.stats.avgRank})</span>
+            <span class="rank" id="rank-avg-away">(#${
+              awayTeam.stats.avgRank
+            })</span>
           </div>
           <div class="rank-cat">
             <span id="team-avg">AVG</span>
           </div>
           <div class="rank-home">
             <span class="stat" id="stat-avg-home">${homeTeam.stats.avg}</span>
-            <span class="rank" id="rank-avg-home">(#${homeTeam.stats.avgRank})</span>
+            <span class="rank" id="rank-avg-home">(#${
+              homeTeam.stats.avgRank
+            })</span>
           </div>
         </div>
         <div class="rank-row">
           <div class="rank-away">
             <span class="stat" id="stat-ops-away">${awayTeam.stats.ops}</span>
-            <span class="rank" id="rank-ops-away">(#${awayTeam.stats.opsRank})</span>
+            <span class="rank" id="rank-ops-away">(#${
+              awayTeam.stats.opsRank
+            })</span>
           </div>
           <div class="rank-cat">
             <span id="team-ops">OPS</span>
           </div>
           <div class="rank-home">
             <span class="stat" id="stat-ops-home">${homeTeam.stats.ops}</span>
-            <span class="rank" id="rank-ops-home">(#${homeTeam.stats.opsRank})</span>
+            <span class="rank" id="rank-ops-home">(#${
+              homeTeam.stats.opsRank
+            })</span>
           </div>
         </div>
         <div class="rank-row">
           <div class="rank-away">
             <span class="stat" id="stat-rpg-away">${awayRPG}</span>
-            <span class="rank" id="rank-rpg-away">(#${awayTeam.stats.runsRank})</span>
+            <span class="rank" id="rank-rpg-away">(#${
+              awayTeam.stats.runsRank
+            })</span>
           </div>
           <div class="rank-cat">
             <span id="team-rpg">RPG</span>
           </div>
           <div class="rank-home">
             <span class="stat" id="stat-rpg-home">${homeRPG}</span>
-            <span class="rank" id="rank-rpg-home">(#${homeTeam.stats.runsRank})</span>
+            <span class="rank" id="rank-rpg-home">(#${
+              homeTeam.stats.runsRank
+            })</span>
           </div>
         </div>
       `;
@@ -488,27 +556,13 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
         <div class="filter">
           <select name="date-filter" id="date-filter-${game.gamePk}">
-            <option value="season" ${
-              dateFilterAll.value === "season" ? "selected" : ""
-            }>Season</option>
-            <option value="60days" ${
-              dateFilterAll.value === "60days" ? "selected" : ""
-            }>Last 60 days</option>
-            <option value="30days" ${
-              dateFilterAll.value === "30days" ? "selected" : ""
-            }>Last 30 days</option>
-            <option value="14days" ${
-              dateFilterAll.value === "14days" ? "selected" : ""
-            }>Last 14 days</option>
-            <option value="7days" ${
-              dateFilterAll.value === "7days" ? "selected" : ""
-            }>Last 7 days</option>
-            <option value="1stHalf" ${
-              dateFilterAll.value === "1stHalf" ? "selected" : ""
-            }>1st Half</option>
-            <option value="2ndHalf" ${
-              dateFilterAll.value === "2ndHalf" ? "selected" : ""
-            }>2nd Half</option>
+            <option selected value="season">Season</option>
+            <option value="60days">Last 60 days</option>
+            <option value="30days">Last 30 days</option>
+            <option value="14days">Last 14 days</option>
+            <option value="7days">Last 7 days</option>
+            <option value="1stHalf">1st Half</option>
+            <option value="2ndHalf">2nd Half</option>
           </select>
         </div>
       `;
@@ -549,11 +603,9 @@ document.addEventListener("DOMContentLoaded", function () {
         `#lineup-status-${game.gamePk} .away-lineup-status`
       );
       if (lineupData.awayBattingOrder.length === 0) {
-        awayLineupStatus.innerHTML =
-          '<span class="lineup-projected">Projected Lineup</span>';
+        awayLineupStatus.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
       } else {
-        awayLineupStatus.innerHTML =
-          '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        awayLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
       // Update lineup status for home team
@@ -561,11 +613,9 @@ document.addEventListener("DOMContentLoaded", function () {
         `#lineup-status-${game.gamePk} .home-lineup-status`
       );
       if (lineupData.homeBattingOrder.length === 0) {
-        homeLineupStatus.innerHTML =
-          '<span class="lineup-projected">Projected Lineup</span>';
+        homeLineupStatus.innerHTML = '<span class="lineup-projected">Projected Lineup</span>';
       } else {
-        homeLineupStatus.innerHTML =
-          '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        homeLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
       // Add event listener for date filter change
@@ -611,41 +661,61 @@ document.addEventListener("DOMContentLoaded", function () {
           ranksDiv.innerHTML = `
             <div class="rank-row">
               <div class="rank-away">
-                <span class="stat" id="stat-avg-away">${awayTeam.stats.avg}</span>
-                <span class="rank" id="rank-avg-away">(#${awayTeam.stats.avgRank})</span>
+                <span class="stat" id="stat-avg-away">${
+                  awayTeam.stats.avg
+                }</span>
+                <span class="rank" id="rank-avg-away">(#${
+                  awayTeam.stats.avgRank
+                })</span>
               </div>
               <div class="rank-cat">
                 <span id="team-avg">AVG</span>
               </div>
               <div class="rank-home">
-                <span class="stat" id="stat-avg-home">${homeTeam.stats.avg}</span>
-                <span class="rank" id="rank-avg-home">(#${homeTeam.stats.avgRank})</span>
+                <span class="stat" id="stat-avg-home">${
+                  homeTeam.stats.avg
+                }</span>
+                <span class="rank" id="rank-avg-home">(#${
+                  homeTeam.stats.avgRank
+                })</span>
               </div>
             </div>
             <div class="rank-row">
               <div class="rank-away">
-                <span class="stat" id="stat-ops-away">${awayTeam.stats.ops}</span>
-                <span class="rank" id="rank-ops-away">(#${awayTeam.stats.opsRank})</span>
+                <span class="stat" id="stat-ops-away">${
+                  awayTeam.stats.ops
+                }</span>
+                <span class="rank" id="rank-ops-away">(#${
+                  awayTeam.stats.opsRank
+                })</span>
               </div>
               <div class="rank-cat">
                 <span id="team-ops">OPS</span>
               </div>
               <div class="rank-home">
-                <span class="stat" id="stat-ops-home">${homeTeam.stats.ops}</span>
-                <span class="rank" id="rank-ops-home">(#${homeTeam.stats.opsRank})</span>
+                <span class="stat" id="stat-ops-home">${
+                  homeTeam.stats.ops
+                }</span>
+                <span class="rank" id="rank-ops-home">(#${
+                  homeTeam.stats.opsRank
+                })</span>
               </div>
             </div>
             <div class="rank-row">
               <div class="rank-away">
                 <span class="stat" id="stat-rpg-away">${newAwayRPG}</span>
-                <span class="rank" id="rank-rpg-away">(#${awayTeam.stats.runsRank})</span>
+                <span class="rank" id="rank-rpg-away">(#${
+                  awayTeam.stats.runsRank
+                })</span>
               </div>
               <div class="rank-cat">
                 <span id="team-rpg">RPG</span>
               </div>
               <div class="rank-home">
                 <span class="stat" id="stat-rpg-home">${newHomeRPG}</span>
-                <span class="rank" id="rank-rpg-home">(#${homeTeam.stats.runsRank})</span>
+                <span class="rank" id="rank-rpg-home">(#${
+                  homeTeam.stats.runsRank
+                })</span>
               </div>
             </div>
           `;
@@ -691,8 +761,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const arrow = dropdown.querySelector(".arrow-container span");
 
       function setActiveClass(teamDiv) {
-        const otherTeamDiv =
-          teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
+        const otherTeamDiv = teamDiv === awayTeamDiv ? homeTeamDiv : awayTeamDiv;
         const teamTypeClass =
           teamDiv === awayTeamDiv ? "awaytm-active" : "hometm-active";
         const otherTeamTypeClass =
@@ -928,5 +997,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     const games = await fetchGames(selectedDate);
     renderGames(games);
+  });
+
+  showLineupsBtn.addEventListener("click", function () {
+    const homeTeams = document.querySelectorAll(".home-team");
+
+    if (showLineupsBtn.textContent.includes("Show Lineups")) {
+      homeTeams.forEach(homeTeam => {
+        homeTeam.click();
+      });
+      showLineupsBtn.innerHTML = `Hide Lineups <i class="fa-solid fa-eye-slash"></i>`;
+    } else {
+      const dropdowns = document.querySelectorAll(".dropdown.tm-active");
+      dropdowns.forEach(dropdown => {
+        dropdown.click();
+      });
+      showLineupsBtn.innerHTML = `Show Lineups <i class="fa-solid fa-eye"></i>`;
+    }
   });
 });

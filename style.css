@@ -192,9 +192,31 @@ header {
   color: #333;
   height: 1.5rem;
 }
+.date-filter-all select {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+  color: #333;
+  height: 1.5rem;
+  width: 6rem;
+}
 .filter option {
   text-align: left;
   font-size: 0.7rem;
+}
+.date-filter-all option {
+  text-align: left;
+}
+.show-lineups button {
+  height: 1.5rem;
+  padding-left: 5px;
+  padding-right: 5px;
+  background-color: white;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  width: 7.5rem;
 }
 .lineups {
   padding: 1rem;
