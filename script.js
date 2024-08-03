@@ -24,13 +24,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const teamMap = {};
   teams.forEach(team => {
-    teamMap[team.fullName] = {
-      id: team.id,
-      color: team.color,
-      abbreviation: team.abbreviation,
-      fullName: team.fullName,
-      briefName: team.briefName
-    };
+    teamMap[team.fullName] = { id: team.id, color: team.color, abbreviation: team.abbreviation, fullName: team.fullName, briefName: team.briefName };
   });
 
   function formatTeamName(name) {
@@ -287,8 +281,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       })
     );
 
-    const awayPitcher = liveData.boxscore.teams.away.players[`ID${liveData.boxscore.teams.away.pitcher}`];
-    const homePitcher = liveData.boxscore.teams.home.players[`ID${liveData.boxscore.teams.home.pitcher}`];
+    const awayPitcher = liveData.boxscore.teams.away.pitchers.length > 0
+      ? liveData.boxscore.teams.away.players[`ID${liveData.boxscore.teams.away.pitchers[0]}`]
+      : null;
+  
+    const homePitcher = liveData.boxscore.teams.home.pitchers.length > 0
+      ? liveData.boxscore.teams.home.players[`ID${liveData.boxscore.teams.home.pitchers[0]}`]
+      : null;
 
     return { awayBattingOrder, homeBattingOrder, awayPitcher, homePitcher };
   }
@@ -296,13 +295,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   function renderLineups(battingOrder, gamePk, teamType, pitcher) {
     const lineupDiv = document.getElementById(`${teamType}-lineup-${gamePk}`);
     lineupDiv.innerHTML = "";
-
+  
     const lineupCard = document.createElement("div");
     lineupCard.classList.add("lineup-card");
-
+  
     const playerRows = document.createElement("div");
     playerRows.classList.add("player-rows");
-
+  
     if (battingOrder.length === 0) {
       playerRows.innerHTML =
         '<div class="row"><div class="player-info"><span class="tbd-lineup">Lineup has not been confirmed yet</span></div></div>';
@@ -320,17 +319,17 @@ document.addEventListener("DOMContentLoaded", async function () {
           </div>
         </div>
       `;
-
+  
       battingOrder.forEach((player, index) => {
         const playerRow = document.createElement("div");
         playerRow.classList.add("row");
-
+  
         // Formatear el nombre
         const fullName = player.person.fullName;
         const nameParts = fullName.split(" ");
         const initial = nameParts[0].charAt(0);
         const lastName = nameParts.slice(1).join(" ");
-
+  
         playerRow.innerHTML = `
           <div class="player-info">
             <span class="bat-ord">${index + 1}.</span>
@@ -346,10 +345,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         `;
         playerRows.appendChild(playerRow);
       });
-
+  
       lineupCard.appendChild(lineupHeader); // Add the first header if there is a lineup
       lineupCard.appendChild(playerRows); // Add the player rows
-
+  
       const secondLineupHeader = document.createElement("div");
       secondLineupHeader.classList.add("lineup-header");
       secondLineupHeader.innerHTML = `
@@ -364,41 +363,43 @@ document.addEventListener("DOMContentLoaded", async function () {
         </div>
       `;
       lineupCard.appendChild(secondLineupHeader); // Add the second header if there is a lineup
-
+  
       const pitcherRows = document.createElement("div");
       pitcherRows.classList.add("player-rows");
-
+  
       const pitcherRow = document.createElement("div");
       pitcherRow.classList.add("row");
-
+  
       if (pitcher) {
         const fullName = pitcher.person.fullName;
         const nameParts = fullName.split(" ");
         const initial = nameParts[0].charAt(0);
         const lastName = nameParts.slice(1).join(" ");
-
+  
         pitcherRow.innerHTML = `
           <div class="player-info">
             <span class="bat-name">${initial}. ${lastName}</span>
             <span class="bat-pos">P</span>
           </div>
           <div class="player-stats">
-            <span class="bat-ip">${pitcher.stats.ip || "-"}</span>
-            <span class="bat-era">${pitcher.stats.era || "-"}</span>
-            <span class="bat-whip">${pitcher.stats.whip || "-"}</span>
-            <span class="bat-fip">${pitcher.stats.fip || "-"}</span>
+            <span class="bat-ip">${pitcher.ip || "-"}</span>
+            <span class="bat-era">${pitcher.era || "-"}</span>
+            <span class="bat-whip">${pitcher.whip || "-"}</span>
+            <span class="bat-fip">${pitcher.fip || "-"}</span>
           </div>
         `;
       } else {
         pitcherRow.innerHTML = '<div class="player-info"><span class="tbd-lineup">Pitcher has not been confirmed yet</span></div>';
       }
       pitcherRows.appendChild(pitcherRow); // Add the pitcher row within the new player-rows
-
+  
       lineupCard.appendChild(pitcherRows); // Add the pitcher rows
-
+  
       lineupDiv.appendChild(lineupCard);
     }
   }
+  
+  
 
   function getLogoUrl(teamId, teamName, isActive = false) {
     const logoType = isActive ? "team-cap-on-dark" : "team-cap-on-light";
@@ -563,7 +564,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         </div>
         <div class="filter">
           <select name="date-filter" id="date-filter-${game.gamePk}">
-            <option selected value="${dateFilterAll.value}">${dateFilterAll.value}</option>
+            <option value="season">Season</option>
             <option value="60days">Last 60 days</option>
             <option value="30days">Last 30 days</option>
             <option value="14days">Last 14 days</option>
@@ -625,141 +626,143 @@ document.addEventListener("DOMContentLoaded", async function () {
         homeLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
+      // Set the selected value for date filter
+      const dateFilter = document.getElementById(`date-filter-${game.gamePk}`);
+      dateFilter.value = dateFilterAll.value;
+
       // Add event listener for date filter change
-      document
-        .getElementById(`date-filter-${game.gamePk}`)
-        .addEventListener("change", async function () {
-          const selectedFilter = this.value;
-          const newStartDate = getStartDate(selectedFilter);
-          const newEndDate = formatApiDate(selectedDate);
+      dateFilter.addEventListener("change", async function () {
+        const selectedFilter = this.value;
+        const newStartDate = getStartDate(selectedFilter);
+        const newEndDate = formatApiDate(selectedDate);
 
-          const newTeamStats = await fetchTeamStats(newStartDate, newEndDate);
-          const awayTeamStats = newTeamStats[game.teams.away.team.id];
-          const homeTeamStats = newTeamStats[game.teams.home.team.id];
+        const newTeamStats = await fetchTeamStats(newStartDate, newEndDate);
+        const awayTeamStats = newTeamStats[game.teams.away.team.id];
+        const homeTeamStats = newTeamStats[game.teams.home.team.id];
 
-          awayTeam.stats = {
-            ...awayTeam.stats,
-            avg: awayTeamStats?.avg || "-",
-            avgRank: awayTeamStats?.avgRank || "-",
-            ops: awayTeamStats?.ops || "-",
-            opsRank: awayTeamStats?.opsRank || "-",
-            runs: awayTeamStats?.runs || "-",
-            runsRank: awayTeamStats?.runsRank || "-",
-            games: awayTeamStats?.games || 1,
-          };
-          homeTeam.stats = {
-            ...homeTeam.stats,
-            avg: homeTeamStats?.avg || "-",
-            avgRank: homeTeamStats?.avgRank || "-",
-            ops: homeTeamStats?.ops || "-",
-            opsRank: homeTeamStats?.opsRank || "-",
-            runs: homeTeamStats?.runs || "-",
-            runsRank: homeTeamStats?.runsRank || "-",
-            games: homeTeamStats?.games || 1,
-          };
+        awayTeam.stats = {
+          ...awayTeam.stats,
+          avg: awayTeamStats?.avg || "-",
+          avgRank: awayTeamStats?.avgRank || "-",
+          ops: awayTeamStats?.ops || "-",
+          opsRank: awayTeamStats?.opsRank || "-",
+          runs: awayTeamStats?.runs || "-",
+          runsRank: awayTeamStats?.runsRank || "-",
+          games: awayTeamStats?.games || 1,
+        };
+        homeTeam.stats = {
+          ...homeTeam.stats,
+          avg: homeTeamStats?.avg || "-",
+          avgRank: homeTeamStats?.avgRank || "-",
+          ops: homeTeamStats?.ops || "-",
+          opsRank: homeTeamStats?.opsRank || "-",
+          runs: homeTeamStats?.runs || "-",
+          runsRank: homeTeamStats?.runsRank || "-",
+          games: homeTeamStats?.games || 1,
+        };
 
-          const newAwayRPG = (
-            awayTeam.stats.runs / awayTeam.stats.games
-          ).toFixed(2);
-          const newHomeRPG = (
-            homeTeam.stats.runs / homeTeam.stats.games
-          ).toFixed(2);
+        const newAwayRPG = (
+          awayTeam.stats.runs / awayTeam.stats.games
+        ).toFixed(2);
+        const newHomeRPG = (
+          homeTeam.stats.runs / homeTeam.stats.games
+        ).toFixed(2);
 
-          ranksDiv.innerHTML = `
-            <div class="rank-row">
-              <div class="rank-away">
-                <span class="stat" id="stat-avg-away">${
-                  awayTeam.stats.avg
-                }</span>
-                <span class="rank" id="rank-avg-away">(#${
-                  awayTeam.stats.avgRank
-                })</span>
-              </div>
-              <div class="rank-cat">
-                <span id="team-avg">AVG</span>
-              </div>
-              <div class="rank-home">
-                <span class="stat" id="stat-avg-home">${
-                  homeTeam.stats.avg
-                }</span>
-                <span class="rank" id="rank-avg-home">(#${
-                  homeTeam.stats.avgRank
-                })</span>
-              </div>
+        ranksDiv.innerHTML = `
+          <div class="rank-row">
+            <div class="rank-away">
+              <span class="stat" id="stat-avg-away">${
+                awayTeam.stats.avg
+              }</span>
+              <span class="rank" id="rank-avg-away">(#${
+                awayTeam.stats.avgRank
+              })</span>
             </div>
-            <div class="rank-row">
-              <div class="rank-away">
-                <span class="stat" id="stat-ops-away">${
-                  awayTeam.stats.ops
-                }</span>
-                <span class="rank" id="rank-ops-away">(#${
-                  awayTeam.stats.opsRank
-                })</span>
-              </div>
-              <div class="rank-cat">
-                <span id="team-ops">OPS</span>
-              </div>
-              <div class="rank-home">
-                <span class="stat" id="stat-ops-home">${
-                  homeTeam.stats.ops
-                }</span>
-                <span class="rank" id="rank-ops-home">(#${
-                  homeTeam.stats.opsRank
-                })</span>
-              </div>
+            <div class="rank-cat">
+              <span id="team-avg">AVG</span>
             </div>
-            <div class="rank-row">
-              <div class="rank-away">
-                <span class="stat" id="stat-rpg-away">${newAwayRPG}</span>
-                <span class="rank" id="rank-rpg-away">(#${
-                  awayTeam.stats.runsRank
-                })</span>
-              </div>
-              <div class="rank-cat">
-                <span id="team-rpg">RPG</span>
-              </div>
-              <div class="rank-home">
-                <span class="stat" id="stat-rpg-home">${newHomeRPG}</span>
-                <span class="rank" id="rank-rpg-home">(#${
-                  homeTeam.stats.runsRank
-                })</span>
-              </div>
+            <div class="rank-home">
+              <span class="stat" id="stat-avg-home">${
+                homeTeam.stats.avg
+              }</span>
+              <span class="rank" id="rank-avg-home">(#${
+                homeTeam.stats.avgRank
+              })</span>
             </div>
-          `;
+          </div>
+          <div class="rank-row">
+            <div class="rank-away">
+              <span class="stat" id="stat-ops-away">${
+                awayTeam.stats.ops
+              }</span>
+              <span class="rank" id="rank-ops-away">(#${
+                awayTeam.stats.opsRank
+              })</span>
+            </div>
+            <div class="rank-cat">
+              <span id="team-ops">OPS</span>
+            </div>
+            <div class="rank-home">
+              <span class="stat" id="stat-ops-home">${
+                homeTeam.stats.ops
+              }</span>
+              <span class="rank" id="rank-ops-home">(#${
+                homeTeam.stats.opsRank
+              })</span>
+            </div>
+          </div>
+          <div class="rank-row">
+            <div class="rank-away">
+              <span class="stat" id="stat-rpg-away">${newAwayRPG}</span>
+              <span class="rank" id="rank-rpg-away">(#${
+                awayTeam.stats.runsRank
+              })</span>
+            </div>
+            <div class="rank-cat">
+              <span id="team-rpg">RPG</span>
+            </div>
+            <div class="rank-home">
+              <span class="stat" id="stat-rpg-home">${newHomeRPG}</span>
+              <span class="rank" id="rank-rpg-home">(#${
+                homeTeam.stats.runsRank
+              })</span>
+            </div>
+          </div>
+        `;
 
-          // Update player stats
-          const newLineupData = await fetchLineups(
-            game.gamePk,
-            newStartDate,
-            newEndDate
-          );
-          renderLineups(newLineupData.awayBattingOrder, game.gamePk, "away", newLineupData.awayPitcher);
-          renderLineups(newLineupData.homeBattingOrder, game.gamePk, "home", newLineupData.homePitcher);
+        // Update player stats
+        const newLineupData = await fetchLineups(
+          game.gamePk,
+          newStartDate,
+          newEndDate
+        );
+        renderLineups(newLineupData.awayBattingOrder, game.gamePk, "away", newLineupData.awayPitcher);
+        renderLineups(newLineupData.homeBattingOrder, game.gamePk, "home", newLineupData.homePitcher);
 
-          // Update lineup status for away team
-          const newAwayLineupStatus = document.querySelector(
-            `#lineup-status-${game.gamePk} .away-lineup-status`
-          );
-          if (newLineupData.awayBattingOrder.length === 0) {
-            newAwayLineupStatus.innerHTML =
-              '<span class="lineup-projected">Projected Lineup</span>';
-          } else {
-            newAwayLineupStatus.innerHTML =
-              '<span class="lineup-confirmed">Lineup Confirmed</span>';
-          }
+        // Update lineup status for away team
+        const newAwayLineupStatus = document.querySelector(
+          `#lineup-status-${game.gamePk} .away-lineup-status`
+        );
+        if (newLineupData.awayBattingOrder.length === 0) {
+          newAwayLineupStatus.innerHTML =
+            '<span class="lineup-projected">Projected Lineup</span>';
+        } else {
+          newAwayLineupStatus.innerHTML =
+            '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        }
 
-          // Update lineup status for home team
-          const newHomeLineupStatus = document.querySelector(
-            `#lineup-status-${game.gamePk} .home-lineup-status`
-          );
-          if (newLineupData.homeBattingOrder.length === 0) {
-            newHomeLineupStatus.innerHTML =
-              '<span class="lineup-projected">Projected Lineup</span>';
-          } else {
-            newHomeLineupStatus.innerHTML =
-              '<span class="lineup-confirmed">Lineup Confirmed</span>';
-          }
-        });
+        // Update lineup status for home team
+        const newHomeLineupStatus = document.querySelector(
+          `#lineup-status-${game.gamePk} .home-lineup-status`
+        );
+        if (newLineupData.homeBattingOrder.length === 0) {
+          newHomeLineupStatus.innerHTML =
+            '<span class="lineup-projected">Projected Lineup</span>';
+        } else {
+          newHomeLineupStatus.innerHTML =
+            '<span class="lineup-confirmed">Lineup Confirmed</span>';
+        }
+      });
 
       // Add event listeners for team and dropdown
       const awayTeamDiv = gameDiv.querySelector(".away-team");
