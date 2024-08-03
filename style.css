@@ -28,7 +28,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 70%;
+  width: 80%;
   padding: 0.5rem;
   margin: 0 auto;
 }
@@ -200,7 +200,7 @@ header {
   background-color: white;
   color: #333;
   height: 1.5rem;
-  width: 6rem;
+  width: 7rem;
 }
 .filter option {
   text-align: left;
@@ -217,6 +217,9 @@ header {
   border: 2px solid #ccc;
   border-radius: 5px;
   width: 7.5rem;
+}
+.show-lineups button:hover{
+  cursor: pointer;
 }
 .lineups {
   padding: 1rem;
