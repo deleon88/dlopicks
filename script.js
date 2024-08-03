@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       case "2ndHalf":
         date.setFullYear(2024);
         date.setMonth(6);
-        date.setDate(17); // Fecha del All-Star Game
+        date.setDate(17); 
         break;
       default:
         date.setFullYear(2024);
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       avg: stats.avg || "-",
       obp: stats.obp || "-",
       ops: stats.ops || "-",
-      pa: stats.plateAppearances || "-" // Plate Appearances
+      pa: stats.plateAppearances || "-" 
     };
   }
 
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchGames(date) {
     const formattedDate = formatApiDate(date);
-    const startDate = getStartDate(dateFilterAll.value); // Use dateFilterAll value
+    const startDate = getStartDate(dateFilterAll.value); 
     const endDate = formattedDate;
     const response = await fetch(
       `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${formattedDate}&hydrate=probablePitcher`
@@ -215,7 +215,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const teamStats = await fetchTeamStats(startDate, endDate);
 
-    // Fetch pitcher's hand and update stats
     for (const game of games) {
       if (game.teams.away.probablePitcher) {
         const awayPitcherId = game.teams.away.probablePitcher.id;
@@ -230,7 +229,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         );
       }
 
-      // Add stats from API if present
       const awayTeamStats = teamStats[game.teams.away.team.id];
       const homeTeamStats = teamStats[game.teams.home.team.id];
       game.teams.away.stats = {
@@ -241,7 +239,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         opsRank: awayTeamStats?.opsRank || "-",
         runs: awayTeamStats?.runs || "-",
         runsRank: awayTeamStats?.runsRank || "-",
-        games: awayTeamStats?.games || 1, // Default to 1 to avoid division by zero
+        games: awayTeamStats?.games || 1, 
       };
       game.teams.home.stats = {
         ...game.teams.home.stats,
@@ -251,7 +249,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         opsRank: homeTeamStats?.opsRank || "-",
         runs: homeTeamStats?.runs || "-",
         runsRank: homeTeamStats?.runsRank || "-",
-        games: homeTeamStats?.games || 1, // Default to 1 to avoid division by zero
+        games: homeTeamStats?.games || 1, 
       };
     }
 
@@ -346,8 +344,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         playerRows.appendChild(playerRow);
       });
   
-      lineupCard.appendChild(lineupHeader); // Add the first header if there is a lineup
-      lineupCard.appendChild(playerRows); // Add the player rows
+      lineupCard.appendChild(lineupHeader); 
+      lineupCard.appendChild(playerRows); 
   
       const secondLineupHeader = document.createElement("div");
       secondLineupHeader.classList.add("lineup-header");
@@ -362,7 +360,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           </div>
         </div>
       `;
-      lineupCard.appendChild(secondLineupHeader); // Add the second header if there is a lineup
+      lineupCard.appendChild(secondLineupHeader); 
   
       const pitcherRows = document.createElement("div");
       pitcherRows.classList.add("player-rows");
@@ -391,9 +389,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       } else {
         pitcherRow.innerHTML = '<div class="player-info"><span class="tbd-lineup">Pitcher has not been confirmed yet</span></div>';
       }
-      pitcherRows.appendChild(pitcherRow); // Add the pitcher row within the new player-rows
+      pitcherRows.appendChild(pitcherRow); 
   
-      lineupCard.appendChild(pitcherRows); // Add the pitcher rows
+      lineupCard.appendChild(pitcherRows); 
   
       lineupDiv.appendChild(lineupCard);
     }
@@ -410,7 +408,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const teamsDataResponse = await fetch('/teams.json');
     const teamsData = await teamsDataResponse.json();
 
-    // Ordenar los juegos por la hora de inicio
     games.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
 
     gamesContainer.innerHTML = "";
@@ -606,7 +603,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       renderLineups(lineupData.awayBattingOrder, game.gamePk, "away", lineupData.awayPitcher);
       renderLineups(lineupData.homeBattingOrder, game.gamePk, "home", lineupData.homePitcher);
 
-      // Update lineup status for away team
       const awayLineupStatus = document.querySelector(
         `#lineup-status-${game.gamePk} .away-lineup-status`
       );
@@ -616,7 +612,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         awayLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
-      // Update lineup status for home team
       const homeLineupStatus = document.querySelector(
         `#lineup-status-${game.gamePk} .home-lineup-status`
       );
@@ -626,11 +621,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         homeLineupStatus.innerHTML = '<span class="lineup-confirmed">Lineup Confirmed</span>';
       }
 
-      // Set the selected value for date filter
       const dateFilter = document.getElementById(`date-filter-${game.gamePk}`);
       dateFilter.value = dateFilterAll.value;
 
-      // Add event listener for date filter change
       dateFilter.addEventListener("change", async function () {
         const selectedFilter = this.value;
         const newStartDate = getStartDate(selectedFilter);
@@ -730,7 +723,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           </div>
         `;
 
-        // Update player stats
         const newLineupData = await fetchLineups(
           game.gamePk,
           newStartDate,
@@ -739,7 +731,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         renderLineups(newLineupData.awayBattingOrder, game.gamePk, "away", newLineupData.awayPitcher);
         renderLineups(newLineupData.homeBattingOrder, game.gamePk, "home", newLineupData.homePitcher);
 
-        // Update lineup status for away team
         const newAwayLineupStatus = document.querySelector(
           `#lineup-status-${game.gamePk} .away-lineup-status`
         );
@@ -751,7 +742,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             '<span class="lineup-confirmed">Lineup Confirmed</span>';
         }
 
-        // Update lineup status for home team
         const newHomeLineupStatus = document.querySelector(
           `#lineup-status-${game.gamePk} .home-lineup-status`
         );
@@ -764,7 +754,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       });
 
-      // Add event listeners for team and dropdown
       const awayTeamDiv = gameDiv.querySelector(".away-team");
       const homeTeamDiv = gameDiv.querySelector(".home-team");
       const dropdown = gameDiv.querySelector(".dropdown");
@@ -779,17 +768,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (teamDiv.classList.contains("tm-active")) {
           teamDiv.classList.remove("tm-active");
-          teamDiv.style.backgroundColor = ""; // Remove background color
+          teamDiv.style.backgroundColor = ""; 
           ranksDiv.classList.remove("tm-active");
           ranksDiv.style.backgroundColor = "";
-          splitsDiv.classList.remove(teamTypeClass); // Remove specific team type active class from splits
-          splitsDiv.style.backgroundColor = ""; // Remove background color from splits
-          lineupsDiv.classList.remove(teamTypeClass); // Remove specific team type active class from lineups
-          lineupsDiv.style.backgroundColor = ""; // Remove background color from lineups
+          splitsDiv.classList.remove(teamTypeClass); 
+          splitsDiv.style.backgroundColor = ""; 
+          lineupsDiv.classList.remove(teamTypeClass); 
+          lineupsDiv.style.backgroundColor = ""; 
           dropdown.classList.remove("tm-active");
           arrow.innerHTML = "&#8595;";
 
-          // Change logo back to team-cap-on-light
           const teamId = teamDiv.getAttribute("data-team-id");
           const teamLogo = teamDiv.querySelector(".team-logo img");
           teamLogo.src = getLogoUrl(
@@ -799,30 +787,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
           teamDiv.classList.add("tm-active");
           otherTeamDiv.classList.remove("tm-active");
-          otherTeamDiv.style.backgroundColor = ""; // Remove background color from other team
+          otherTeamDiv.style.backgroundColor = ""; 
           const otherTeamId = otherTeamDiv.getAttribute("data-team-id");
           const otherTeamLogo = otherTeamDiv.querySelector(".team-logo img");
           otherTeamLogo.src = getLogoUrl(
             otherTeamId,
             otherTeamDiv.querySelector(".team-name").textContent
-          ); // Change other team's logo back to team-cap-on-light
+          ); 
           const teamId = teamDiv.getAttribute("data-team-id");
           const teamData = teamsData.find((team) => team.id == teamId);
           if (teamData) {
             teamDiv.style.backgroundColor = teamData.color;
-            lineupsDiv.style.backgroundColor = teamData.color; // Set background color for lineups
-            splitsDiv.style.backgroundColor = teamData.color; // Set background color for splits
+            lineupsDiv.style.backgroundColor = teamData.color; 
+            splitsDiv.style.backgroundColor = teamData.color; 
           }
           ranksDiv.classList.add("tm-active");
           ranksDiv.style.backgroundColor = teamData.color;
-          splitsDiv.classList.add(teamTypeClass); // Add specific team type active class to splits
-          lineupsDiv.classList.add(teamTypeClass); // Add specific team type active class to lineups
-          lineupsDiv.classList.remove(otherTeamTypeClass); // Remove the other team type active class from lineups
-          splitsDiv.classList.remove(otherTeamTypeClass); // Remove the other team type active class from splits
+          splitsDiv.classList.add(teamTypeClass); 
+          lineupsDiv.classList.add(teamTypeClass); 
+          lineupsDiv.classList.remove(otherTeamTypeClass); 
+          splitsDiv.classList.remove(otherTeamTypeClass); 
           dropdown.classList.add("tm-active");
           arrow.innerHTML = "&#8593;";
 
-          // Change logo to team-cap-on-dark
           const teamLogo = teamDiv.querySelector(".team-logo img");
           teamLogo.src = getLogoUrl(
             teamId,
@@ -845,14 +832,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (dropdown.classList.contains("tm-active")) {
           dropdown.classList.remove("tm-active");
-          arrow.innerHTML = "&#8595;"; // Flecha hacia abajo
+          arrow.innerHTML = "&#8595;"; 
           if (activeTeam) {
             activeTeam.classList.remove("tm-active");
             activeTeam.style.backgroundColor = "";
             ranksDiv.style.backgroundColor = "";
             splitsDiv.style.backgroundColor = "";
 
-            // Change logo back to team-cap-on-light
             const teamId = activeTeam.getAttribute("data-team-id");
             const teamLogo = activeTeam.querySelector(".team-logo img");
             teamLogo.src = getLogoUrl(
@@ -885,7 +871,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       year: "numeric",
     });
 
-    // Adjusting firstDay to match calendar's Monday start
     let adjustedFirstDay = (firstDay + 6) % 7;
 
     for (let i = 0; i < adjustedFirstDay; i++) {
@@ -897,7 +882,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       const dayDiv = document.createElement("div");
       dayDiv.textContent = day;
 
-      // Check if the current day is the selected day
       if (
         year === selectedDate.getFullYear() &&
         month === selectedDate.getMonth() &&
@@ -907,25 +891,20 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       dayDiv.addEventListener("click", async function () {
-        // Remove 'active' class from all days
         const activeDay = document.querySelector(".days .active");
         if (activeDay) {
           activeDay.classList.remove("active");
         }
 
-        // Add 'active' class to the selected day
         dayDiv.classList.add("active");
         selectedDate.setDate(day);
         selectedDate.setMonth(month);
         selectedDate.setFullYear(year);
 
-        // Update the input placeholder with the selected date
         calendarInput.value = formatDate(selectedDate);
 
-        // Hide the calendar after selecting a day
         calendar.style.display = "none";
 
-        // Fetch and render games for the selected date
         const games = await fetchGames(selectedDate);
         renderGames(games);
       });
@@ -943,7 +922,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     selectedDate.setDate(selectedDate.getDate() + offset);
     calendarInput.value = formatDate(selectedDate);
 
-    // If the month changes, re-render the calendar
     if (
       selectedDate.getMonth() !== currentDate.getMonth() ||
       selectedDate.getFullYear() !== currentDate.getFullYear()
@@ -951,7 +929,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       currentDate = new Date(selectedDate);
       renderCalendar(currentDate);
     } else {
-      // Update the active day without re-rendering the calendar
       const activeDay = document.querySelector(".days .active");
       if (activeDay) {
         activeDay.classList.remove("active");
@@ -970,7 +947,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       );
     }
 
-    // Fetch and render games for the selected date
     const games = await fetchGames(selectedDate);
     renderGames(games);
   }
@@ -978,7 +954,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   calLeft.addEventListener("click", () => changeMonth(-1));
   calRight.addEventListener("click", () => changeMonth(1));
 
-  // Toggle the calendar when clicking on the input
   calendarInput.addEventListener("click", function () {
     if (calendar.style.display === "block") {
       calendar.style.display = "none";
@@ -987,18 +962,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // Change day when clicking on past-day and next-day
   pastDay.addEventListener("click", () => changeDay(-1));
   nextDay.addEventListener("click", () => changeDay(1));
 
-  // Set initial placeholder with the current date
+
   calendarInput.value = formatDate(selectedDate);
   renderCalendar(currentDate);
 
-  // Fetch and render games for the initial date
   fetchGames(selectedDate).then(renderGames);
 
-  // Update all date filters when date-filter-all changes
   dateFilterAll.addEventListener("change", async function () {
     const selectedFilter = this.value;
     const dateFilters = document.querySelectorAll(".filter select");
